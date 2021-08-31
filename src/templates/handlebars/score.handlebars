@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html>
+    <head>
+
+        <title>Walkability Scores</title>
+
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A==" crossorigin=""/>
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-+0n0xVW2eSR5OomGNYDnhzAbDsOXxcvSN1TPprVMTNDbiYZCxYbOOl7+AMvyTG2x" crossorigin="anonymous">
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-gtEjrD/SeCtmISkJkNUaaKMoLD0//ElJ19smozuHV6z3Iehds+3Ulb9Bn9Plx0x4" crossorigin="anonymous"></script>
+        <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js" integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA==" crossorigin=""></script>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+    </head>
+    <body>
+        <div style="
+            width: 600px;
+        ">
+            <div>
+                <div id="mapid" style="
+                    border: 10px solid #333333;
+                    border-radius: 50%;
+                    width: 600px;
+                    height: 600px;
+                "/>
+            </div>
+
+            <div style="border: 5px solid #333333">
+                <div id="natural-beauty-progress" class="progress" style="
+                    height: 20px;
+                ">
+                    <div class="progress-bar" role="progressbar" style="width: calc(100%*{{closestSidewalk.natural_beauty_score}}/3)" aria-valuenow="{{closestSidewalk.natural_beauty_score}}" aria-valuemin="0" aria-valuemax="3">Natural Beauty: {{closestSidewalk.natural_beauty_score}}</div>
+                </div>
+                <div id="manmade-beauty-progress"  class="progress" style="
+                    height: 20px;
+                ">
+                    <div class="progress-bar bg-success" role="progressbar" style="width: calc(100%*{{closestSidewalk.manmade_beauty_score}}/3)" aria-valuenow="{{closestSidewalk.manmade_beauty_score}}" aria-valuemin="0" aria-valuemax="3">Manmade Beauty: {{closestSidewalk.manmade_beauty_score}}</div>
+                </div>
+                <div id="comfort-progress"  class="progress" style="
+                    height: 20px;
+                ">
+                    <div class="progress-bar bg-info" role="progressbar" style="width: calc(100%*{{closestSidewalk.comfort_score}}/3)" aria-valuenow="{{closestSidewalk.comfort_score}}" aria-valuemin="0" aria-valuemax="3">Comfort: {{closestSidewalk.comfort_score}}</div>
+                </div>
+                <div id="interest-progress"  class="progress" style="
+                    height: 20px;
+                ">
+                    <div class="progress-bar bg-warning" role="progressbar" style="width: calc(100%*{{closestSidewalk.interest_score}}/3)" aria-valuenow="{{closestSidewalk.interest_score}}" aria-valuemin="0" aria-valuemax="3">Interest: {{closestSidewalk.interest_score}}</div>
+                </div>
+                <div id="safety-progress"  class="progress" style="
+                    height: 20px;
+                ">
+                    <div class="progress-bar bg-danger" role="progressbar" style="width: calc(100%*{{closestSidewalk.safety_score}}/3)" aria-valuenow="{{closestSidewalk.safety_score}}" aria-valuemin="0" aria-valuemax="3">Safety: {{closestSidewalk.safety_score}}</div>
+                </div>
+                <div id="access-progress"  class="progress" style="
+                    height: 20px;
+                ">
+                    <div class="progress-bar" role="progressbar" style="
+                            width: calc(100%*{{closestSidewalk.access_score}}/3);
+                            background-color: purple !important;
+                         " aria-valuenow="{{closestSidewalk.access_score}}" aria-valuemin="0" aria-valuemax="3">Access: {{closestSidewalk.access_score}}</div>
+                </div>
+                <div id="amenities-progress"  class="progress" style="
+                    height: 20px;
+                ">
+                    <div class="progress-bar" role="progressbar" style="
+                            width: calc(100%*{{closestSidewalk.amenities_score}}/3);
+                            background-color: rosybrown !important
+                         " aria-valuenow="{{closestSidewalk.amenities_score}}" aria-valuemin="0" aria-valuemax="3">Amenities: {{closestSidewalk.amenities_score}}</div>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            var map = L.map(
+                'mapid',
+                {
+                    zoomControl: false,
+                    dragging: false,
+                    boxZoom: false,
+                    doubleClickZoom: false,
+                    scrollWheelZoom: false
+                }
+            ).fitBounds([
+                [{{bottomLat}}, {{leftLng}}],
+                [{{topLat}}, {{rightLng}}]
+            ]).setMaxBounds([
+                [{{bottomLat}}, {{leftLng}}],
+                [{{topLat}}, {{rightLng}}]
+            ]);
+
+            L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token=pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4NXVycTA2emYycXBndHRqcmZ3N3gifQ.rJcFIG214AriISLbB6B5aw', {
+                attribution: '<a href="https://www.walkspan.com/">Walkspan</a> ©',
+                id: 'mapbox/streets-v11',
+                preferCanvas: true
+            }).addTo(map);
+
+            L.marker([{{latitude}}, {{longitude}}]).addTo(map);
+
+
+            colorMapping = {
+                'Natural Beauty': '#0d6efd',
+                'Manmade Beauty': '#198754',
+                'Comfort': '#0dcaf0',
+                'Interest': '#ffc107',
+                'Safety': '#dc3545',
+                'Access': '#A020F0',
+                'Amenities': '#BC8F8F'
+            };
+
+            var prioritizedPolylines = [];
+            var naturalBeautyPolylines = [];
+            var manmadeBeautyPolylines = [];
+            var comfortPolylines = [];
+            var interestPolylines = [];
+            var safetyPolylines = [];
+            var accessPolylines = [];
+            var amenitiesPolylines = [];
+
+            {{#each sidewalksInRadius}}
+
+                var polylineLatlngs = [[
+                    {{this.sidewalk_starting_latitude}},
+                    {{this.sidewalk_starting_longitude}}
+                ], [
+                    {{this.sidewalk_ending_latitude}},
+                    {{this.sidewalk_ending_longitude}}
+                ]]
+
+                var prioritizedMapping = [
+                  [ {{this.natural_beauty_score}}, 'Natural Beauty' ],
+                  [ {{this.manmade_beauty_score}}, 'Manmade Beauty' ],
+                  [ {{this.comfort_score}}, 'Comfort' ],
+                  [ {{this.interest_score}}, 'Interest' ],
+                  [ {{this.safety_score}}, 'Safety' ],
+                  [ {{this.access_score}}, 'Access' ],
+                  [ {{this.access_score}}, 'Amenities' ]
+                ].sort((a, b) => { return b[0] - a[0] })[0]
+
+                var prioritizedPolyline = L.polyline(polylineLatlngs, {
+                    color: colorMapping[prioritizedMapping[1]],
+                    opacity: prioritizedMapping[0] / 3.0
+                  }
+                );
+
+                naturalBeautyPolylines.push(L.polyline(polylineLatlngs, {
+                    color: colorMapping['Natural Beauty'],
+                    opacity: {{this.natural_beauty_score}} / 3.0
+                }));
+                manmadeBeautyPolylines.push(L.polyline(polylineLatlngs, {
+                    color: colorMapping['Manmade Beauty'],
+                    opacity: {{this.manmade_beauty_score}} / 3.0
+                }));
+                comfortPolylines.push(L.polyline(polylineLatlngs, {
+                    color: colorMapping['Comfort'],
+                    opacity: {{this.comfort_score}} / 3.0
+                }));
+                interestPolylines.push(L.polyline(polylineLatlngs, {
+                    color: colorMapping['Interest'],
+                    opacity: {{this.interest_score}} / 3.0
+                }));
+                safetyPolylines.push(L.polyline(polylineLatlngs, {
+                    color: colorMapping['Safety'],
+                    opacity: {{this.safety_score}} / 3.0
+                }));
+                amenitiesPolylines.push(L.polyline(polylineLatlngs, {
+                    color: colorMapping['Amenities'],
+                    opacity: {{this.amenities_score}} / 3.0
+                }));
+                accessPolylines.push(L.polyline(polylineLatlngs, {
+                    color: colorMapping['Access'],
+                    opacity: {{this.access_score}} / 3.0
+                }));
+                prioritizedPolylines.push(prioritizedPolyline);
+                prioritizedPolyline.addTo(map);
+            {{/each}}
+
+            $('[id=\'natural-beauty-progress\']').on('mouseover', () => {
+                prioritizedPolylines.forEach(polyline => polyline.remove());
+                naturalBeautyPolylines.forEach(polyline => polyline.addTo(map));
+            });
+
+            $('[id=\'natural-beauty-progress\']').on('mouseout', () => {
+                prioritizedPolylines.forEach(polyline => polyline.addTo(map));
+                naturalBeautyPolylines.forEach(polyline => polyline.remove());
+            });
+
+            $('[id=\'manmade-beauty-progress\']').on('mouseover', () => {
+                prioritizedPolylines.forEach(polyline => polyline.remove());
+                manmadeBeautyPolylines.forEach(polyline => polyline.addTo(map));
+            });
+
+            $('[id=\'manmade-beauty-progress\']').on('mouseout', () => {
+                prioritizedPolylines.forEach(polyline => polyline.addTo(map));
+                manmadeBeautyPolylines.forEach(polyline => polyline.remove());
+            });
+
+            $('[id=\'comfort-progress\']').on('mouseover', () => {
+                prioritizedPolylines.forEach(polyline => polyline.remove());
+                comfortPolylines.forEach(polyline => polyline.addTo(map));
+            });
+
+            $('[id=\'comfort-progress\']').on('mouseout', () => {
+                prioritizedPolylines.forEach(polyline => polyline.addTo(map));
+                comfortPolylines.forEach(polyline => polyline.remove());
+            });
+
+            $('[id=\'interest-progress\']').on('mouseover', () => {
+                prioritizedPolylines.forEach(polyline => polyline.remove());
+                interestPolylines.forEach(polyline => polyline.addTo(map));
+            });
+
+            $('[id=\'interest-progress\']').on('mouseout', () => {
+                prioritizedPolylines.forEach(polyline => polyline.addTo(map));
+                interestPolylines.forEach(polyline => polyline.remove());
+            });
+
+            $('[id=\'safety-progress\']').on('mouseover', () => {
+                prioritizedPolylines.forEach(polyline => polyline.remove());
+                safetyPolylines.forEach(polyline => polyline.addTo(map));
+            });
+
+            $('[id=\'safety-progress\']').on('mouseout', () => {
+                prioritizedPolylines.forEach(polyline => polyline.addTo(map));
+                safetyPolylines.forEach(polyline => polyline.remove());
+            });
+
+
+            $('[id=\'access-progress\']').on('mouseover', () => {
+                prioritizedPolylines.forEach(polyline => polyline.remove());
+                accessPolylines.forEach(polyline => polyline.addTo(map));
+            });
+
+            $('[id=\'access-progress\']').on('mouseout', () => {
+                prioritizedPolylines.forEach(polyline => polyline.addTo(map));
+                accessPolylines.forEach(polyline => polyline.remove());
+            });
+
+
+            $('[id=\'amenities-progress\']').on('mouseover', () => {
+                prioritizedPolylines.forEach(polyline => polyline.remove());
+                amenitiesPolylines.forEach(polyline => polyline.addTo(map));
+            });
+
+            $('[id=\'amenities-progress\']').on('mouseout', () => {
+                prioritizedPolylines.forEach(polyline => polyline.addTo(map));
+                amenitiesPolylines.forEach(polyline => polyline.remove());
+            });
+
+        </script>
+
+    </body>
+</html>

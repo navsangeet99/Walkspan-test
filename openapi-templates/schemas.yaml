@@ -1,0 +1,118 @@
+components:
+  schemas:
+    ScoreModel:
+      required:
+        - natural_beauty_score
+        - manmade_beauty_score
+        - comfort_score
+        - interest_score
+        - safety_score
+        - access_score
+        - amenities_score
+        - latitude
+        - longitude
+      properties:
+        natural_beauty_score:
+          type: integer
+          format: int64
+          nullable: true
+          minimum: 0
+          maximum: 3
+          description: A proprietary score describing the natural beauty characteristics of this sidewalk
+        manmade_beauty_score:
+          type: integer
+          format: int64
+          nullable: true
+          minimum: 0
+          maximum: 3
+          description: A proprietary score describing the manmade beauty characteristics of this sidewalk
+        comfort_score:
+          type: integer
+          format: int64
+          nullable: true
+          minimum: 0
+          maximum: 3
+          description: A proprietary score describing the comfort characteristics of this sidewalk
+        interest_score:
+          type: integer
+          format: int64
+          nullable: true
+          minimum: 0
+          maximum: 3
+          description: A proprietary score describing the local interest characteristics of this sidewalk
+        safety_score:
+          type: integer
+          format: int64
+          nullable: true
+          minimum: 0
+          maximum: 3
+          description: A proprietary score describing the safety characteristics of this sidewalk
+        access_score:
+          type: integer
+          format: int64
+          nullable: true
+          minimum: 0
+          maximum: 3
+          description: A proprietary score describing the accessibility characteristics of this sidewalk
+        amenities_score:
+          type: integer
+          format: int64
+          nullable: true
+          minimum: 0
+          maximum: 3
+          description: A proprietary score describing the local ameneties this sidewalk
+        latitude:
+          type: number
+          minimum: -90
+          maximum: 90
+          description: The latitude of the corner of this sidewalk
+        longitude:
+          type: number
+          minimum: -180
+          maximum: 180
+          description: The longitude of the corner of this sidewalk
+
+    EssentialsModel:
+      required:
+        - longitude
+        - latitude
+        - name
+        - category_general
+        - category_detail
+        - category_exact
+      properties:
+        name:
+          type: string
+          description: The name of the lifestyle essential
+        category_general:
+          type: string
+          description: A generic keyword explaining what type of lifestyle essential this is
+        category_exact:
+          type: string
+          description: A more specific keyword explaining the exact details of this lifestyle essential
+        latitude:
+          type: number
+          minimum: -90
+          maximum: 90
+          description: The latitude of this lifestyle essential
+        longitude:
+          type: number
+          minimum: -180
+          maximum: 180
+          description: The longitude of this lifestyle essential
+
+    Error:
+      required:
+        - message
+        - param
+        - location
+      properties:
+        message:
+          type: string
+          description: A string describing the details of an error
+        param:
+          type: string
+          description: The parameter where the error was located
+        location:
+          type: string
+          description: The parameter type that the error occured in
