@@ -1,0 +1,90 @@
+service: walkspan-backend-api
+
+#configValidationMode: error
+
+frameworkVersion: '2'
+
+provider:
+  name: aws
+  runtime: nodejs12.x
+  region: us-east-1
+  lambdaHashingVersion: '20201221'
+
+functions:
+  score:
+    handler: src/app.handler
+    events:
+      - http:
+          path: score/gps
+          method: GET
+          private: true
+      - http:
+          path: score/address
+          method: GET
+          private: true
+  essentials:
+    handler: src/app.handler
+    events:
+      - http:
+          path: essentials/gps
+          method: GET
+          private: true
+      - http:
+          path: essentials/address
+          method: GET
+          private: true
+  docs:
+    handler: src/app.handler
+    events:
+      - http:
+          path: /
+          method: GET
+          private: false
+      - http:
+          path: docs/openapi.json
+          method: GET
+          private: false
+      - http:
+          path: docs/{proxy+}
+          method: GET
+          private: false
+      - http:
+          path: docs
+          method: GET
+          private: false
+    layers:
+      - arn:aws:lambda:us-east-1:284387765956:layer:BetterSqlite3:9
+  assets:
+    handler: src/app.handler
+    events:
+      - http:
+          path: essentials/marker-icon.png
+          method: GET
+          private: false
+
+plugins:
+  - serverless-add-api-key
+  - serverless-domain-manager
+  - serverless-offline
+
+custom:
+  apiKeys:
+    - name: jabenTestKey
+      usagePlan:
+        name: "jaben-test-key"
+        quota:
+          limit: 1000
+          period: DAY
+        throttle:
+          burstLimit: 100
+          rateLimit: 20
+  customDomain:
+    domainName: api.walkspan.com
+    basePath: ''
+    certificateName: api.walkspan.com
+    createRoute53Record: false
+  serverless-offline:
+    httpPort: 3000
+    host: localhost
+    noPrependStageInUrl: true
+    

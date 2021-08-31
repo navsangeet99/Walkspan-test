@@ -1,0 +1,57 @@
+ScoreResponse:
+  type: array
+  items:
+    type: object
+    properties:
+      natural_beauty_score:
+        type: integer
+        format: int64
+        minimum: 0
+        maximum: 3
+        nullable: true
+      manmade_beauty_score:
+        type: integer
+        format: int64
+        minimum: 0
+        maximum: 3
+        nullable: true
+      comfort_score:
+        type: integer
+        format: int64
+        minimum: 0
+        maximum: 3
+        nullable: true
+      interest_score:
+        type: integer
+        format: int64
+        minimum: 0
+        maximum: 3
+        nullable: true
+      safety_score:
+        type: integer
+        format: int64
+        minimum: 0
+        maximum: 3
+        nullable: true
+      access_score:
+        type: integer
+        format: int64
+        minimum: 0
+        maximum: 3
+        nullable: true
+      amenities_score:
+        type: integer
+        format: int64
+        minimum: 0
+        maximum: 3
+        nullable: true
+      latitude:
+        type: number
+        format: float
+        minimum: -90
+        maximum: 90
+      longitude:
+        type: number
+        format: float
+        minimum: -180
+        maximum: 180
